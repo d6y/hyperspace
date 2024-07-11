@@ -29,10 +29,10 @@ fn main() {
     // NB these happen not to be stored in the hyperspace.
 
     // Binding concepts to values:
-    let usa_isa_country = usa.product(&country);
-    let mexico_isa_country = mexico.product(&country);
-    let dollar_isa_currency = dollar.product(&currency);
-    let peso_isa_currency = peso.product(&currency);
+    let usa_isa_country = usa.product(country);
+    let mexico_isa_country = mexico.product(country);
+    let dollar_isa_currency = dollar.product(currency);
+    let peso_isa_currency = peso.product(currency);
 
     // More facts, associating a country to a currency
     let usa_currency = usa_isa_country.add(&dollar_isa_currency);

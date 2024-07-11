@@ -48,7 +48,7 @@ impl<V: Vector + Algebra> Hyperspace<V> {
 
     // Find the closest vector to the given vector.
     fn clean_up_index(&self, v: &V) -> usize {
-        assert!(self.vectors.len() > 0);
+        assert!(!self.vectors.is_empty());
 
         let first = self.vectors.first().unwrap();
         let mut closest = Closest {
