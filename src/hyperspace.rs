@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use rand::Rng;
 
 // We store vectors in the hyperspace:
-pub trait Vector {
+pub trait Vector: Clone {
     type Element;
     fn new<R: Rng>(vector_length: usize, rng: &mut R) -> Self;
 }
@@ -13,12 +13,13 @@ pub trait Algebra
 where
     Self: Vector,
 {
-    // fn weighting(&self, weight: <Self as Vector>::Element) -> Self;
-    fn add(&self, other: &Self) -> Self;
-    fn complement(&self) -> Self;
-    fn subtract(&self, other: &Self) -> Self;
     fn distance(&self, other: &Self) -> f32;
+    fn complement(&self) -> Self;
+    fn add(&self, other: &Self) -> Self;
     fn product(&self, other: &Self) -> Self;
+
+    #[allow(dead_code)]
+    fn subtract(&self, other: &Self) -> Self;
 }
 
 pub struct Hyperspace<V: Vector> {
@@ -28,7 +29,7 @@ pub struct Hyperspace<V: Vector> {
     _phantom: PhantomData<V::Element>,
 }
 
-impl<V: Vector> Hyperspace<V> {
+impl<V: Vector + Algebra> Hyperspace<V> {
     pub fn new(vector_length: usize) -> Self {
         Hyperspace {
             vector_length,
@@ -38,10 +39,40 @@ impl<V: Vector> Hyperspace<V> {
         }
     }
 
-    pub fn draw<R: Rng>(&mut self, label: &str, rng: &mut R) -> &V {
+    pub fn draw<R: Rng, S: Into<String>>(&mut self, label: S, rng: &mut R) -> V {
         let v = V::new(self.vector_length, rng);
-        self.vectors.push(v);
-        self.labels.push(label.to_string());
-        self.vectors.last().unwrap()
+        self.vectors.push(v.clone());
+        self.labels.push(label.into());
+        v
     }
+
+    // Find the closest vector to the given vector.
+    fn clean_up_index(&self, v: &V) -> usize {
+        assert!(self.vectors.len() > 0);
+
+        let first = self.vectors.first().unwrap();
+        let mut closest = Closest {
+            index: 0,
+            distance: first.distance(v),
+        };
+
+        for pos in 1..self.vectors.len() {
+            let candidate = &self.vectors[pos];
+            let distance = candidate.distance(v);
+            if distance < closest.distance {
+                closest.index = pos;
+                closest.distance = distance;
+            }
+        }
+
+        closest.index
+    }
+
+    pub fn label_for(&self, v: &V) -> &str {
+        &self.labels[self.clean_up_index(v)]
+    }
+}
+struct Closest {
+    index: usize,
+    distance: f32,
 }
