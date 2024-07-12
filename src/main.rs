@@ -38,9 +38,9 @@ fn main() {
     let usa_currency = usa_isa_country.add(&dollar_isa_currency, &mut rng);
     let mexico_currency = mexico_isa_country.add(&peso_isa_currency, &mut rng);
 
-    // Retreival:
+    // Retrieval:
 
-    // Let's check we can look up the dollar lable from the vector:
+    // Let's check we can look up the dollar label from the vector:
     assert_eq!(&"Dollar", &hyperspace.label_for(dollar));
 
     // Let's unpick the currency field from the usa_currency vector:
