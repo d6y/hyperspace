@@ -14,12 +14,8 @@ where
     Self: Vector,
 {
     fn distance(&self, other: &Self) -> f32;
-    fn complement(&self) -> Self;
-    fn add(&self, other: &Self) -> Self;
+    fn add<R: Rng>(&self, other: &Self, rng: &mut R) -> Self;
     fn product(&self, other: &Self) -> Self;
-
-    #[allow(dead_code)]
-    fn subtract(&self, other: &Self) -> Self;
 }
 
 pub struct Hyperspace<V: Vector> {
@@ -56,9 +52,12 @@ impl<V: Vector + Algebra> Hyperspace<V> {
             distance: first.distance(v),
         };
 
+        //dbg!(closest.index, &self.labels[0], closest.distance);
+
         for pos in 1..self.vectors.len() {
             let candidate = &self.vectors[pos];
             let distance = candidate.distance(v);
+            // dbg!(pos, &self.labels[pos], distance);
             if distance < closest.distance {
                 closest.index = pos;
                 closest.distance = distance;
@@ -72,6 +71,7 @@ impl<V: Vector + Algebra> Hyperspace<V> {
         &self.labels[self.clean_up_index(v)]
     }
 }
+
 struct Closest {
     index: usize,
     distance: f32,

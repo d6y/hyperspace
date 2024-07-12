@@ -22,21 +22,25 @@ impl Algebra for BitVec {
         xored.count_ones() as f32 / self.len() as f32
     }
 
-    fn add(&self, other: &Self) -> Self {
+    fn add<R: Rng>(&self, other: &Self, rng: &mut R) -> Self {
         assert!(self.len() == other.len());
-        let mut sum = self.clone();
-        sum |= other;
-        sum
-    }
 
-    fn complement(&self) -> Self {
-        use std::ops::Not;
-        self.clone().not()
-    }
+        let len = self.len();
 
-    fn subtract(&self, other: &Self) -> Self {
-        assert!(self.len() == other.len());
-        self.add(&other.complement())
+        let mut result = bitvec![0; len];
+
+        for i in 0..len {
+            result.set(
+                i,
+                match (self[i], other[i]) {
+                    (true, true) => true,
+                    (false, false) => false,
+                    (true, false) | (false, true) => rng.gen(),
+                },
+            );
+        }
+
+        result
     }
 
     fn product(&self, other: &Self) -> Self {
@@ -68,30 +72,16 @@ mod tests {
 
     #[test]
     fn add() {
-        let a = bitvec![1, 0, 1, 0];
-        let b = bitvec![0, 1, 0, 0];
-        let expected = bitvec![1, 1, 1, 0];
+        let a = bitvec![0, 1, 0, 1];
+        let b = bitvec![0, 0, 1, 1];
 
-        let sum = a.add(&b);
-        assert_eq!(sum, expected);
-    }
+        let sum = a.add(&b, &mut rand::thread_rng());
 
-    #[test]
-    fn complement() {
-        let input = bitvec![1, 0];
-        let expected = bitvec![0, 1];
-        assert_eq!(input.complement(), expected);
-    }
+        // There is a random choice where there's an equal
+        // number of 1s and 0s
 
-    #[test]
-    fn subtract() {
-        let a = bitvec![1, 0, 1, 0];
-        let b = bitvec![1, 1, 0, 0];
-
-        let e = bitvec![1, 0, 1, 1];
-
-        let r = a.subtract(&b);
-        assert_eq!(r, e);
+        assert!(sum[0] == false);
+        assert!(sum[3] == true);
     }
 
     #[test]

@@ -35,20 +35,26 @@ fn main() {
     let peso_isa_currency = peso.product(currency);
 
     // More facts, associating a country to a currency
-    let usa_currency = usa_isa_country.add(&dollar_isa_currency);
-    let mexico_currency = mexico_isa_country.add(&peso_isa_currency);
+    let usa_currency = usa_isa_country.add(&dollar_isa_currency, &mut rng);
+    let mexico_currency = mexico_isa_country.add(&peso_isa_currency, &mut rng);
 
     // Retreival:
 
-    // Let's check we can look up the dollar from the store.
-    // No sprprises here:
+    // Let's check we can look up the dollar lable from the vector:
     assert_eq!(&"Dollar", &hyperspace.label_for(dollar));
 
-    // Let's ask what's the "Dollar" of Mexico?
+    // Let's unpick the currency field from the usa_currency vector:
+    let us_currency_query = currency.product(&usa_currency);
 
-    let query = (dollar.product(&usa_currency)).product(&mexico_currency);
-    assert_eq!(&"Peso", &hyperspace.label_for(&query));
+    // And see what that vector is closest to in the store:
+    assert_eq!(&"Dollar", &hyperspace.label_for(&us_currency_query));
 
-    // If you were to print this out you'd get 10,000 random 1s and 0s
-    // println!("USA-Dollar: {:?}", usa_dollar);
+    // And what's the "Dollar" of Mexico?
+    let mexico_dollar_query = (dollar.product(&usa_currency)).product(&mexico_currency);
+    // Closest vector is:
+    assert_eq!(&"Peso", &hyperspace.label_for(&mexico_dollar_query));
+
+    // What is the USA of the Peso?
+    let usa_of_peso_query = (usa.product(&usa_currency)).product(&mexico_currency);
+    assert_eq!(&"Mexico", &hyperspace.label_for(&usa_of_peso_query));
 }
