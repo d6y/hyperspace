@@ -45,9 +45,11 @@ fn main() {
 
     // Let's unpick the currency field from the usa_currency vector:
     let us_currency_query = currency.product(&usa_currency);
-
-    // And see what that vector is closest to in the store:
     assert_eq!(&"Dollar", &hyperspace.label_for(&us_currency_query));
+
+    // What role does the dollar play in the US?
+    let dollar_query = dollar.product(&usa_currency);
+    assert_eq!(&"Currency", &hyperspace.label_for(&dollar_query));
 
     // And what's the "Dollar" of Mexico?
     let mexico_dollar_query = (dollar.product(&usa_currency)).product(&mexico_currency);

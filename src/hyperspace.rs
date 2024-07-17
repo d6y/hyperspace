@@ -43,6 +43,7 @@ impl<V: Vector + Algebra> Hyperspace<V> {
     }
 
     // Find the closest vector to the given vector.
+    // This is pretty much the slowest possible implementation.
     fn clean_up_index(&self, v: &V) -> usize {
         assert!(!self.vectors.is_empty());
 
